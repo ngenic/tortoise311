@@ -1,7 +1,7 @@
 defmodule Tortoise311.Connection.Controller do
   @moduledoc false
 
-  use GenServer
+  use GenServer, restart: :transient
 
   alias __MODULE__, as: State
   alias Tortoise311.Connection.Inflight
