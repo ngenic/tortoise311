@@ -103,6 +103,11 @@ defmodule Tortoise311.Connection do
     }
   end
 
+  def connection_status(client_id) do
+    GenServer.call(via_name(client_id), :status)
+  end
+
+
   @doc """
   Close the connection to the broker.
 
@@ -387,6 +392,7 @@ defmodule Tortoise311.Connection do
     {:ok, state}
   end
 
+
   @impl GenServer
   def terminate(_reason, state) do
     :ok = Tortoise311.Registry.delete_meta(via_name(state.connect.client_id))
@@ -512,6 +518,10 @@ defmodule Tortoise311.Connection do
   end
 
   @impl GenServer
+  def handle_call(:status, _from, state)do
+    {:reply, {:ok, state.status}, state}
+  end
+
   def handle_call(:subscriptions, _from, state) do
     {:reply, state.subscriptions, state}
   end
