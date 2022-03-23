@@ -521,7 +521,7 @@ defmodule Tortoise311.Connection do
 
   @impl GenServer
   def handle_call(:status, _from, state)do
-    {:reply, state.status, state}
+    {:reply, {state.status, state.last_status_change}, state}
   end
 
   def handle_call(:subscriptions, _from, state) do
