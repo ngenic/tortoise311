@@ -19,6 +19,7 @@ defmodule Tortoise311.Connection do
     :connect,
     :server,
     :status,
+    :status_change,
     :backoff,
     :subscriptions,
     :keep_alive,
@@ -381,6 +382,7 @@ defmodule Tortoise311.Connection do
       subscriptions: subscriptions,
       opts: opts,
       status: :down,
+      status_change: DateTime.utc_now(),
       handler: handler
     }
 
@@ -508,12 +510,12 @@ defmodule Tortoise311.Connection do
 
       :up ->
         Logger.info("[Tortoise311] Connection went up.")
-        {:noreply, %State{state | status: status}}
+        {:noreply, %State{state | status: status, status_change: DateTime.utc_now()}}
 
       :down ->
         Logger.info("[Tortoise311] Connection went down. Reconnecting.")
         send(self(), :connect)
-        {:noreply, %State{state | status: status}}
+        {:noreply, %State{state | status: status, status_change: DateTime.utc_now()}}
     end
   end
 
@@ -630,7 +632,7 @@ defmodule Tortoise311.Connection do
 
   defp update_connection_status(%State{} = state, status) do
     :ok = Events.dispatch(state.connect.client_id, :status, status)
-    %State{state | status: status}
+    %State{state | status: status, status_change: DateTime.utc_now()}
   end
 
   defp do_connect(server, %Connect{} = connect) do
